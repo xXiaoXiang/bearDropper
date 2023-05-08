@@ -24,12 +24,12 @@
 # Clear bddb entries from environment
 bddbClear () { 
   local bddbVar
-  for bddbVar in `set | egrep '^bddb_[0-9_]*=' | cut -f1 -d= | xargs echo -n` ; do eval unset $bddbVar ; done
+  for bddbVar in `set | grep -E '^bddb_[0-9_]*=' | cut -f1 -d= | xargs echo -n` ; do eval unset $bddbVar ; done
   bddbStateChange=1
 }
 
 # Returns count of unique IP entries in environment
-bddbCount () { set | egrep '^bddb_[0-9_]*=' | wc -l ; }
+bddbCount () { set | grep -E '^bddb_[0-9_]*=' | wc -l ; }
 
 # Loads existing bddb file into environment
 # Arg: $1 = file, $2 = type (bddb/bddbz), $3 = 
@@ -50,9 +50,9 @@ bddbLoad () {
 bddbSave () { 
   local saveFile="$1.$2" fileType="$2"
   if [ "$fileType" = bddb ] ; then
-    set | egrep '^bddb_[0-9_]*=' | sed s/\'//g > "$saveFile"
+    set | grep -E '^bddb_[0-9_]*=' | sed s/\'//g > "$saveFile"
   elif [ "$fileType" = bddbz ] ; then
-    set | egrep '^bddb_[0-9_]*=' | sed s/\'//g | gzip -c > "$saveFile"
+    set | grep -E '^bddb_[0-9_]*=' | sed s/\'//g | gzip -c > "$saveFile"
   fi
   bddbStateChange=0 
 }
@@ -97,7 +97,7 @@ bddbRemoveRecord () {
 # Returns all IPs (not CIDR) present in records
 bddbGetAllIPs () { 
   local ipRaw record
-  set | egrep '^bddb_[0-9_]*=' | tr \' \  | while read record ; do
+  set | grep -E '^bddb_[0-9_]*=' | tr \' \  | while read record ; do
     ipRaw=`echo $record | cut -f1 -d= | sed 's/^bddb_//'`
     if [ `echo $ipRaw | tr _ \  | wc -w` -eq 4 ] ; then
       echo $ipRaw | tr _ .
@@ -119,7 +119,7 @@ bddbGetRecord () {
 # Dump bddb from environment for debugging 
 bddbDump () { 
   local ip ipRaw status times time record
-  set | egrep '^bddb_[0-9_]*=' | tr \' \  | while read record ; do
+  set | grep -E '^bddb_[0-9_]*=' | tr \' \  | while read record ; do
     ipRaw=`echo $record | cut -f1 -d= | sed 's/^bddb_//'`
     if [ `echo $ipRaw | tr _ \  | wc -w` -eq 5 ] ; then
       ip=`echo $ipRaw | sed 's/\([0-9_]*\)_\([0-9][0-9]*\)$/\1\/\2/' | tr _ .`

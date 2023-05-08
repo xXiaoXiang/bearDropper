@@ -40,11 +40,11 @@ config bearDropper
 
   # IPTables chains to add rules to, syntax is chain:position where
   #   position is (-1 = don't add, 0 = append, 1+ = absolute position)
-    list    firewallHookChain       input_wan_rule:1
-    list    firewallHookChain       forwarding_wan_rule:1
+    list    firewallHookChain       input_wan:1
+    list    firewallHookChain       forward_wan:1
 
   # target used for banned IPs - consider TARPIT/DELUDE
-  	option	firewallTarget		DROP
+  	option	firewallTarget		drop
 
   # Log scanning regexs for those who want to extend the pattern matching. These are run in order
   # by "sed -nE". The IP blocked by bearDropper is the first one encountered in the log line, so
@@ -54,7 +54,7 @@ config bearDropper
     list	logRegex '/has invalid shell, rejected$/d'	# delete (/d) - use to filter out
     # print (/p) - use to filter in 
     list	logRegex '/^[A-Za-z ]+[0-9: ]+authpriv.warn dropbear\[.+([0-9]+\.){3}[0-9]+/p'
-    list	logRegex '/^[A-Za-z ]+[0-9: ]+authpriv.info dropbear\[.+:\ Exit before auth:.*/p'
+    list	logRegex '/^[A-Za-z ]+[0-9: ]+authpriv.info dropbear\[.+:\ Exit before auth.*/p'
 
   # whitelist entries do not work yet; as a temporary workaround, put in a firewall rule upstream
   #

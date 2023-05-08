@@ -1,15 +1,16 @@
 #!/bin/sh
-# https://github.com/robzr/bearDropper
-# bearDropper install script - @robzr
+# https://github.com/marjancinober/bearDropper
+# forked from https://github.com/robzr/bearDropper
+# bearDropper install script - @marjancinober
 
 if [ -f /etc/init.d/bearDropper ] ; then
   echo Detected previous version of bearDropper - stopping
   /etc/init.d/bearDropper stop
 fi
 echo -e 'Retrieving and installing latest version'
-wget -qO /etc/init.d/bearDropper http://rawgit.com/robzr/bearDropper/master/src/init.d/bearDropper 
-wget -qO /etc/config/bearDropper http://rawgit.com/robzr/bearDropper/master/src/config/bearDropper
-wget -qO /usr/sbin/bearDropper http://rawgit.com/robzr/bearDropper/master/bearDropper
+wget -qO /etc/init.d/bearDropper https://raw.githubusercontent.com/marjancinober/bearDropper/master/src/init.d/bearDropper 
+wget -qO /etc/config/bearDropper https://raw.githubusercontent.com/marjancinober/bearDropper/master/src/config/bearDropper
+wget -qO /usr/sbin/bearDropper https://raw.githubusercontent.com/marjancinober/bearDropper/master/bearDropper
 chmod 755 /usr/sbin/bearDropper /etc/init.d/bearDropper
 echo -e 'Processing historical log data (this can take a while)'
 /usr/sbin/bearDropper -m entire -f stdout
@@ -28,5 +29,6 @@ for instance in $(seq 0 $dropbear_count); do
 done
 if [ $dropbear_conf_updated ]; then
   uci commit
-  echo "Verbose logging was configured for dropbear. Please restart the service to enable this change."
+  /etc/init.d/dropbear restart
+  echo "Verbose logging was configured and dropbear service restarted to enable this change."
 fi
