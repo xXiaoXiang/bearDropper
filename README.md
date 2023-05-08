@@ -1,8 +1,8 @@
 ## bearDropper 
 
-**dropbear log parsing ban agent for OpenWRT (Chaos Calmer rewrite of dropBrute.sh)** - @robzr
+**dropbear log parsing ban agent for OpenWRT 22.03 (nftables rewrite of dropBrute.sh by @robzr)** - @marjancinober
 
-OpenWRT (Chaos Calmer) script for blocking repeated invalid dropbear ssh connection attempts (embedded fail2ban)
+OpenWRT (22.03) script for blocking repeated invalid dropbear ssh connection attempts (embedded fail2ban)
 
 **Status**
 
@@ -10,7 +10,7 @@ Working, no known issues.
 
 **Dependencies** 
 
-None! Written entirely in busybox ash, uses all standard OpenWRT commands.
+None! Written entirely in busybox ash, uses all standard OpenWRT 22.03 commands with new fw4 nftables v1.0.2 (Lester Gooch).
 
 **Installation**
 
@@ -43,6 +43,7 @@ To install or upgrade to the latest bearDropper, run:
 
 **TBD**
 
+ - Port the sister project sub2rbl for RBL based banning: https://github.com/robzr/sub2rbl
  - Add optional freegeoip.net lookups for (de|ac)cellerated banning
  - implement whitelist
  - CIDR processing for bans & whitelists
