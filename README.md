@@ -1,12 +1,13 @@
 ## bearDropper 
 
 **dropbear log parsing ban agent for OpenWRT 22.03 (nftables rewrite of dropBrute.sh by @robzr)** - @marjancinober
+[![License: CC BY-SA 4.0](https://licensebuttons.net/l/by-sa/4.0/80x15.png)](https://creativecommons.org/licenses/by-sa/4.0/)
 
 OpenWRT (22.03) script for blocking repeated invalid dropbear ssh connection attempts (embedded fail2ban)
 
 **Status**
 
-Working, no known issues.
+Working, no known issues. Beta nftables port, forked from https://github.com/robzr/bearDropper .
 
 **Dependencies** 
 
@@ -43,7 +44,7 @@ To install or upgrade to the latest bearDropper, run:
 
 **TBD**
 
- - Port the sister project sub2rbl for RBL based banning: https://github.com/robzr/sub2rbl
+ - Port the sister project sub2rbl for RBL based banning: https://github.com/robzr/sub2rbl to nftables
  - Add optional freegeoip.net lookups for (de|ac)cellerated banning
  - implement whitelist
  - CIDR processing for bans & whitelists
@@ -51,6 +52,13 @@ To install or upgrade to the latest bearDropper, run:
  - package and submit to openwrt repo once it's reasonably bug free
  - ipv6 support
 
+**Contributions**
+ - If you find it helpful, please consider consider contributing&emsp;bitcoincash:qzj8xjuxl4u8p3vw720nya2m2e8jc8a6uge4n5q4dx  
+
+&emsp;&emsp;[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](https://www.contributor-covenant.org/) &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<img src="src/assets/bitcoincash.svg" height="60"> &emsp;<img src="src/assets/bitcoincash_qzj8xjuxl4u8p3vw720nya2m2e8jc8a6uge4n5q4dx.png" alt="bitcoincash:qzj8xjuxl4u8p3vw720nya2m2e8jc8a6uge4n5q4dx" />
+
+
 Also see the sister project sub2rbl for RBL based banning: https://github.com/robzr/sub2rbl
 
-Discussion of these projects at OpenWRT forums: https://forum.openwrt.org/viewtopic.php?id=62084
+Discussion of this project: https://forum.openwrt.org/t/fail2ban-replacement-and-rbl-firewall-syncing-in-lightweight-ash/159730
+
