@@ -53,9 +53,10 @@ To install or upgrade to the latest bearDropper, run:
  - ipv6 support
 
 **Contributions**
- - If you find it helpful, please consider consider contributing&emsp;bitcoincash:qzj8xjuxl4u8p3vw720nya2m2e8jc8a6uge4n5q4dx  
+ - If you find it helpful, please consider consider contributing  
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](https://www.contributor-covenant.org/) &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;bitcoincash:qzj8xjuxl4u8p3vw720nya2m2e8jc8a6uge4n5q4dx  
 
-&emsp;&emsp;[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](https://www.contributor-covenant.org/) &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<img src="src/assets/bitcoincash.svg" height="60"> &emsp;<img src="src/assets/bitcoincash_qzj8xjuxl4u8p3vw720nya2m2e8jc8a6uge4n5q4dx.png" alt="bitcoincash:qzj8xjuxl4u8p3vw720nya2m2e8jc8a6uge4n5q4dx" />
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<img src="src/assets/bitcoincash.svg" height="60"> &emsp;<img src="src/assets/bitcoincash_qzj8xjuxl4u8p3vw720nya2m2e8jc8a6uge4n5q4dx.png" alt="bitcoincash:qzj8xjuxl4u8p3vw720nya2m2e8jc8a6uge4n5q4dx" />
 
 
 Also see the sister project sub2rbl for RBL based banning: https://github.com/robzr/sub2rbl
