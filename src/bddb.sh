@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # bearDropper DB - storage routines for ultralight IP/status/epoch storage
+# GNU AFFERO GENERAL PUBLIC LICENSE Version 3 # https://www.gnu.org/licenses/agpl-3.0.html
 #
 # A BDDB record format is: bddb_$IPADDR=$STATE,$TIME[,$TIME...]
 #

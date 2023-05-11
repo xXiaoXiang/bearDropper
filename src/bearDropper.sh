@@ -1,8 +1,10 @@
 #!/bin/ash
 # shellcheck disable=SC2187,SC2086,SC2154,SC2155
 #
-# bearDropper - dropbear log parsing ban agent for OpenWRT (Chaos Calmer rewrite of dropBrute.sh)
+# bearDropper - dropbear log parsing ban agent for OpenWRT 22.03 (rewrite of bearDropper 11/2015)
+#   https://github.com/marjancinober/bearDropper  -- Marjan Cinober 05/2023
 #   http://github.com/robzr/bearDropper  -- Rob Zwissler 11/2015
+# GNU AFFERO GENERAL PUBLIC LICENSE Version 3 # https://www.gnu.org/licenses/agpl-3.0.html
 # 
 #   - lightweight, no dependencies, busybox ash + native OpenWRT commands
 #   - uses uci for configuration, overrideable via command line arguments
