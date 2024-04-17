@@ -136,7 +136,7 @@ banIP () {
   fi
   for x in $firewallHookChains ; do
     chain="${x%:*}" ; position="${x#*:}"
-    if [ $position -ge 0 ] &&  ! nft -a list chain inet fw4 $chain 2>/dev/null | grep -q "\\\t*jump $firewallChain\>" ; then
+    if [ $position -ge 0 ] &&  ! nft -a list chain inet fw4 $chain 2>/dev/null | grep -qE "\\t+jump $firewallChain\>" ; then
       logLine 1 "Inserting hook into nft chain $chain"
       if [ $position = 0 ] ; then
         _hl=$(nft -a list chain inet fw4 $chain | sed -En 's/\t*jump .* # handle //p' | tail -n1)
@@ -159,7 +159,7 @@ wipeFirewall () {
   for x in $firewallHookChains ; do
     chain="${x%:*}" ; position="${x#*:}"
     if [ $position -ge 0 ] ; then
-      _hl=$(nft -a list chain inet fw4 $chain 2>/dev/null | sed -n "s/\t*jump $firewallChain # handle //p")
+      _hl=$(nft -a list chain inet fw4 $chain 2>/dev/null | sed -nE "s/\\t+jump $firewallChain # handle //p")
       if [ "$_hl" ] ; then
         logLine 1 "Removing hook from nft chain $chain"
         nft delete rule inet fw4 $chain handle $_hl
