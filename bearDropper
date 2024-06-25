@@ -80,12 +80,12 @@ uciLoadVar formatTodayLogDateRegex '^%a %b %e ..:..:.. %Y'	# filter for today mo
 # Clear bddb entries from environment
 bddbClear () { 
   local bddbVar
-  for bddbVar in `set | grep -E '^bddb_[0-9_]*=' | cut -f1 -d= | xargs echo -n` ; do eval unset $bddbVar ; done
+  for bddbVar in `set | grep -E '^bddb_[a-fA-F0-9_]*=' | cut -f1 -d= | xargs echo -n` ; do eval unset $bddbVar ; done
   bddbStateChange=1
 }
 
 # Returns count of unique IP entries in environment
-bddbCount () { set | grep -E '^bddb_[0-9_]*=' | wc -l ; }
+bddbCount () { set | grep -E '^bddb_[a-fA-F0-9_]*=' | wc -l ; }
 
 # Loads existing bddb file into environment
 # Arg: $1 = file, $2 = type (bddb/bddbz), $3 = 
@@ -106,9 +106,9 @@ bddbLoad () {
 bddbSave () { 
   local saveFile="$1.$2" fileType="$2"
   if [ "$fileType" = bddb ] ; then
-    set | grep -E '^bddb_[0-9_]*=' | sed s/\'//g > "$saveFile"
+    set | grep -E '^bddb_[a-fA-F0-9_]*=' | sed s/\'//g > "$saveFile"
   elif [ "$fileType" = bddbz ] ; then
-    set | grep -E '^bddb_[0-9_]*=' | sed s/\'//g | gzip -c > "$saveFile"
+    set | grep -E '^bddb_[a-fA-F0-9_]*=' | sed s/\'//g | gzip -c > "$saveFile"
   fi
   bddbStateChange=0 
 }
@@ -116,7 +116,7 @@ bddbSave () {
 # Set bddb record status=1, update ban time flag with newest
 # Args: $1=IP Address $2=timeFlag
 bddbEnableStatus () {
-  local record=`echo $1 | sed -e 's/\./_/g' -e 's/^/bddb_/'`
+  local record=`echo $1 | sed -e 's/\./_/g' -e 's/:/_/g' -e 's/^/bddb_/'`
   local newestTime=`bddbGetTimes $1 | sed 's/.* //' | xargs echo $2 | tr \  '\n' | sort -n | tail -1 `
   eval $record="1,$newestTime"
   bddbStateChange=1
@@ -134,7 +134,7 @@ bddbGetTimes () {
 
 # Args: $1 = IP address, $2 [$3 ...] = timestamp (seconds since epoch)
 bddbAddRecord () {
-  local ip="`echo "$1" | tr . _`" ; shift
+  local ip="`echo "$1" | tr . _ | tr : _`" ; shift
   local newEpochList="$@" status="`eval echo \\\$bddb_$ip | cut -f1 -d,`"
   local oldEpochList="`eval echo \\\$bddb_$ip | cut -f2- -d,  | tr , \ `" 
   local epochList=`echo $oldEpochList $newEpochList | xargs -n 1 echo | sort -un | xargs echo -n | tr \  ,`
@@ -145,7 +145,7 @@ bddbAddRecord () {
 
 # Args: $1 = IP address
 bddbRemoveRecord () {
-  local ip="`echo "$1" | tr . _`"
+  local ip="`echo "$1" | tr . _ | tr : _`"
   eval unset bddb_$ip
   bddbStateChange=1
 }
@@ -153,7 +153,7 @@ bddbRemoveRecord () {
 # Returns all IPs (not CIDR) present in records
 bddbGetAllIPs () { 
   local ipRaw record
-  set | grep -E '^bddb_[0-9_]*=' | tr \' \  | while read record ; do
+  set | grep -E '^bddb_[a-fA-F0-9_]*=' | tr \' \  | while read record ; do
     ipRaw=`echo $record | cut -f1 -d= | sed 's/^bddb_//'`
     if [ `echo $ipRaw | tr _ \  | wc -w` -eq 4 ] ; then
       echo $ipRaw | tr _ .
