@@ -69,7 +69,7 @@ uciLoadVar firewallChain bearDropper
 #
 uciLoadVar syslogTag "bearDropper[$$]"
 # how often to attempt to expire bans when in follow mode
-uciLoadVar followModeCheckInterval 60m	
+uciLoadVar followModeCheckInterval 10m	
 uciLoadVar cmdLogread 'logread'		# for tuning, ex: "logread -l250"
 uciLoadVar cmdLogreadEba 'logread'	# for "Exit before auth:" backscanning
 uciLoadVar formatLogDate '%b %e %H:%M:%S %Y'	# used to convert syslog dates
