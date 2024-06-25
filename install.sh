@@ -1,6 +1,7 @@
 #!/bin/sh
 # https://github.com/marjancinober/bearDropper
 # forked from https://github.com/robzr/bearDropper
+# revised by xXiaoXiang
 # bearDropper install script - @marjancinober
 
 if [ -f /etc/init.d/bearDropper ] ; then
@@ -8,9 +9,9 @@ if [ -f /etc/init.d/bearDropper ] ; then
   /etc/init.d/bearDropper stop
 fi
 echo -e 'Retrieving and installing latest version'
-wget -qO /etc/init.d/bearDropper https://raw.githubusercontent.com/marjancinober/bearDropper/master/src/init.d/bearDropper 
-wget -qO /etc/config/bearDropper https://raw.githubusercontent.com/marjancinober/bearDropper/master/src/config/bearDropper
-wget -qO /usr/sbin/bearDropper https://raw.githubusercontent.com/marjancinober/bearDropper/master/bearDropper
+wget -qO /etc/init.d/bearDropper https://raw.githubusercontent.com/xXiaoXiang/bearDropper/master/src/init.d/bearDropper 
+wget -qO /etc/config/bearDropper https://raw.githubusercontent.com/xXiaoXiang/bearDropper/master/src/config/bearDropper
+wget -qO /usr/sbin/bearDropper https://raw.githubusercontent.com/xXiaoXiang/bearDropper/master/bearDropper
 chmod 755 /usr/sbin/bearDropper /etc/init.d/bearDropper
 echo -e 'Processing historical log data (this can take a while)'
 /usr/sbin/bearDropper -m entire -f stdout

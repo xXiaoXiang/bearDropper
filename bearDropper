@@ -69,7 +69,7 @@ uciLoadVar firewallChain bearDropper
 #
 uciLoadVar syslogTag "bearDropper[$$]"
 # how often to attempt to expire bans when in follow mode
-uciLoadVar followModeCheckInterval 30m	
+uciLoadVar followModeCheckInterval 60m	
 uciLoadVar cmdLogread 'logread'		# for tuning, ex: "logread -l250"
 uciLoadVar cmdLogreadEba 'logread'	# for "Exit before auth:" backscanning
 uciLoadVar formatLogDate '%b %e %H:%M:%S %Y'	# used to convert syslog dates
@@ -195,68 +195,154 @@ getLogTime () {
     "Error: logDateString($logDateString) malformed line ($1)"
 }
 
-# extra validation, fails safe. Args: $1=log line
-getLogIP () { 
+getLogIPv4 () { 
   local logLine="$1"
   local ebaPID=$(echo "$logLine" | sed -n 's/^.*authpriv.info \(dropbear\[[0-9]*\]:\) Exit before auth.*/\1/p')
   [ -n "$ebaPID" ] && logLine=$($cmdLogreadEba | grep -F "${ebaPID} Child connection from ")
   echo "$logLine" | sed -n 's/^.*[^0-9]\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*$/\1/p'
 }
 
+getlogIPv6 () {
+  local logLine="$1"
+  local ebaPID=$(echo "$logLine" | sed -n 's/^.*authpriv.info \(dropbear\[[0-9]*\]:\) Exit before auth.*/\1/p')
+  [ -n "$ebaPID" ] && logLine=$($cmdLogreadEba | grep -F "${ebaPID} Child connection from ")
+  echo "$logLine" | grep -o -E '([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|::([0-9a-fA-F]{1,4}:){1,6}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,6}::([0-9a-fA-F]{1,4}:){1,5}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}::([0-9a-fA-F]{1,4}:){1,4}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,4}::([0-9a-fA-F]{1,4}:){1,3}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,3}::([0-9a-fA-F]{1,4}:){1,2}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,2}::[0-9a-fA-F]{1,4}:|[0-9a-fA-F]{1,4}::([0-9a-fA-F]{1,4}:){1,1}[0-9a-fA-F]{1,4}|::[0-9a-fA-F]{1,4}|::'
+}
+
+# extra validation, fails safe. Args: $1=log line
+getLogIP () {
+  local logLine="$1"
+  local ip=$(getLogIPv4 "$logLine")
+  [ -z "$ip" ] && ip=$(getLogIPv6 "$logLine")
+  [ -z "$ip" ] && logLine 1 "Error: getLogIp() malformed line ($logLine)"
+  echo "$ip"
+}
+
+# determine if IP is IPv4 or IPv6, Args: $1=IP
+getIPtype () {
+  local ip="$1"
+  local ipv4_regex="^([0-9]{1,3}\.){3}[0-9]{1,3}$"
+  local ipv6_regex="^([0-9a-fA-F]{0,4}:){1,7}[0-9a-fA-F]{0,4}$"
+  if [[ $ip =~ $ipv4_regex ]]; then echo "ipv4"
+  elif [[ $ip =~ $ipv6_regex ]]; then echo "ipv6"
+  else echo "invalid"
+  fi
+}
+
 # Args: $1=IP
+unBanIPv4 () {
+  local ip="$1"
+  if ! nft delete element inet fw4 ${firewallChain}_v4 {$ip} >/dev/null 2>/dev/null ; then
+    logLine 3 "unBanIP() Ban rule for $ip not present in nft"
+  else
+    logLine 1 "Removing ban rule for IP $ip from nft"
+  fi
+}
+
+unBanIPv6 () {
+  local ip="$1"
+  if ! nft delete element inet fw4 ${firewallChain}_v6 {$ip} >/dev/null 2>/dev/null ; then
+    logLine 3 "unBanIP() Ban rule for $ip not present in nft"
+  else
+    logLine 1 "Removing ban rule for IP $ip from nft"
+  fi
+}
+
 unBanIP () {
   local ip="$1"
-  _hl=$(nft -a list chain inet fw4 $firewallChain 2>/dev/null | sed -n "/ saddr $ip /{s|\t*ip saddr $ip .*$firewallTarget # handle ||p;q}")
-  if [ "$_hl" ] ; then
-    logLine 1 "Removing ban rule for IP $ip from nft"
-    nft delete rule inet fw4 bearDropper handle $_hl
-  else
-    logLine 3 "unBanIP() Ban rule for $ip not present in nft"
-  fi
+  local type=$(getIPtype "$ip")
+  case $type in
+    ipv4) unBanIPv4 "$ip" ;;
+    ipv6) unBanIPv6 "$ip" ;;
+    *) logLine 1 "Error: unBanIP() invalid IP address ($ip)" ;;
+  esac
 }
 
 # Args: $1=IP
-banIP () {
+banIPv4 () {
   local ip="$1"
-  if ! nft list chain inet fw4 $firewallChain >/dev/null 2>/dev/null ; then  
-    logLine 1 "Creating nft chain $firewallChain"
-    nft add chain inet fw4 $firewallChain
+  if ! nft list set inet fw4 ${firewallChain}_v4 >/dev/null 2>/dev/null ; then
+    logLine 1 "Creating nft set ${firewallChain}_v4"
+    nft create set inet fw4 ${firewallChain}_v4 { type ipv4_addr \; flags interval \; auto-merge \; }
   fi
+
   for x in $firewallHookChains ; do
     chain="${x%:*}" ; position="${x#*:}"
-    if [ $position -ge 0 ] &&  ! nft -a list chain inet fw4 $chain 2>/dev/null | grep -qE "\\t+jump $firewallChain\>" ; then
-      logLine 1 "Inserting hook into nft chain $chain"
+    if [ $position -ge 0 ] &&  ! nft -a list chain inet fw4 $chain 2>/dev/null | grep -qE "\\t+ip saddr @${firewallChain}_v4 $firewallTarget" ; then
+      logLine 1 "Inserting IPv4 hook into nft chain $chain"
       if [ $position = 0 ] ; then
-        _hl=$(nft -a list chain inet fw4 $chain | sed -En 's/\t*jump .* # handle //p' | tail -n1)
-        if [ -z "$_hl" ] ; then nft add rule inet fw4 $chain jump $firewallChain
-        else nft insert rule inet fw4 $chain handle $_hl jump $firewallChain ; fi
+        _hl=$(nft -a list chain inet fw4 $chain | sed -En 's/\t*ip saddr @${firewallChain}_v4 $firewallTarget # handle //p' | tail -n1)
+        if [ -z "$_hl" ] ; then nft add rule inet fw4 $chain ip saddr @${firewallChain}_v4 $firewallTarget
+        else nft insert rule inet fw4 $chain handle $_hl ip saddr @${firewallChain}_v4 $firewallTarget ; fi
       else
-       	nft insert rule inet fw4 $chain index $((position-1)) jump $firewallChain
+       	nft insert rule inet fw4 $chain index $((position-1)) ip saddr @${firewallChain}_v4 $firewallTarget
     fi ; fi 
   done
-  if ! nft list chain inet fw4 $firewallChain | grep -q "saddr $ip .*$firewallTarget" 2>/dev/null ; then
-    logLine 1 "Inserting ban rule for IP $ip into nft chain $firewallChain"
-    nft add rule inet fw4 $firewallChain ip saddr $ip "$firewallTarget"
-  else
-    logLine 3 "banIP() rule for $ip already present in nft chain"
-  fi
+    
+  logLine 1 "Inserting ban rule for IP $ip into nft chain ${firewallChain}_v4"
+  nft add element inet fw4 ${firewallChain}_v4 {$ip}
 }
 
+banIPv6 () {
+  local ip="$1"
+  if ! nft list set inet fw4 ${firewallChain}_v6 >/dev/null 2>/dev/null ; then
+    logLine 1 "Creating nft set ${firewallChain}_v6"
+    nft create set inet fw4 ${firewallChain}_v6 { type ipv6_addr \; flags interval \; auto-merge \; }
+  fi
+
+  for x in $firewallHookChains ; do
+    chain="${x%:*}" ; position="${x#*:}"
+    if [ $position -ge 0 ] &&  ! nft -a list chain inet fw4 $chain 2>/dev/null | grep -qE "\\t+ip6 saddr @${firewallChain}_v6 $firewallTarget" ; then
+      logLine 1 "Inserting IPv6 hook into nft chain $chain"
+      if [ $position = 0 ] ; then
+        _hl=$(nft -a list chain inet fw4 $chain | sed -En 's/\t*ip6 saddr @${firewallChain}_v6 $firewallTarget # handle //p' | tail -n1)
+        if [ -z "$_hl" ] ; then nft add rule inet fw4 $chain ip6 saddr @${firewallChain}_v6 $firewallTarget
+        else nft insert rule inet fw4 $chain handle $_hl ip6 saddr @${firewallChain}_v6 $firewallTarget ; fi
+      else
+       	nft insert rule inet fw4 $chain index $((position-1)) ip6 saddr @${firewallChain}_v6 $firewallTarget
+    fi ; fi 
+  done
+    
+  logLine 1 "Inserting ban rule for IP $ip into nft chain ${firewallChain}_v6"
+  nft add element inet fw4 ${firewallChain}_6 {$ip}
+}
+
+banIP () {
+  local ip="$1"
+  local type=$(getIPtype "$ip")
+  case $type in
+    ipv4) banIPv4 "$ip" ;;
+    ipv6) banIPv6 "$ip" ;;
+    *) logLine 1 "Error: banIP() invalid IP address ($ip)" ;;
+  esac
+
+}
 wipeFirewall () {
   local x chain position
   for x in $firewallHookChains ; do
     chain="${x%:*}" ; position="${x#*:}"
     if [ $position -ge 0 ] ; then
-      _hl=$(nft -a list chain inet fw4 $chain 2>/dev/null | sed -nE "s/\\t+jump $firewallChain # handle //p")
-      if [ "$_hl" ] ; then
-        logLine 1 "Removing hook from nft chain $chain"
-        nft delete rule inet fw4 $chain handle $_hl
-    fi ; fi
+      _hl4=$(nft -a list chain inet fw4 $chain 2>/dev/null | sed -nE "s/\\t+ip saddr @${firewallChain}_v4 $firewallTarget # handle //p")
+      _hl6=$(nft -a list chain inet fw4 $chain 2>/dev/null | sed -nE "s/\\t+ip6 saddr @${firewallChain}_v6 $firewallTarget # handle //p")
+      if [ "$_hl4" ] ; then
+        logLine 1 "Removing IPv4 hook from nft chain $chain"
+        nft delete rule inet fw4 $chain handle $_hl4
+      fi
+      if [ "$_hl6" ] ; then
+        logLine 1 "Removing IPv6 hook from nft chain $chain"
+        nft delete rule inet fw4 $chain handle $_hl6
+      fi
+    fi
   done
-  if nft list chain inet fw4 $firewallChain >/dev/null 2>/dev/null ; then
-    logLine 1 "Flushing and removing nft chain $firewallChain"
-    nft flush chain inet fw4 $firewallChain 2>/dev/null
-    nft delete chain inet fw4 $firewallChain 2>/dev/null
+  if nft list set inet fw4 ${firewallChain}_v4 >/dev/null 2>/dev/null ; then
+    logLine 1 "Flushing and removing nft chain ${firewallChain}_v4"
+    nft flush set inet fw4 ${firewallChain}_v4 2>/dev/null
+    nft delete set inet fw4 ${firewallChain}_v4 2>/dev/null
+  fi
+  if nft list set inet fw4 ${firewallChain}_v6 >/dev/null 2>/dev/null ; then
+    logLine 1 "Flushing and removing nft chain ${firewallChain}_v6"
+    nft flush set inet fw4 ${firewallChain}_v6 2>/dev/null
+    nft delete set inet fw4 ${firewallChain}_v6 2>/dev/null
   fi
 }
 
