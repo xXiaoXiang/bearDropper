@@ -27,7 +27,7 @@ config bearDropper
   # exit, and a time string can be used to specify minimum interval between writes
   # for periodic saving while in follow mode.  Consider flash storage wear & tear
   # when setting this.  Disabled by default, uncomment for daily writes.
-  #	option	persistentStateWritePeriod	1d
+  	option	persistentStateWritePeriod	12h
 
   # used bddbz for compressed or bddb for plaintext state files
   	option	fileStateType		bddb	

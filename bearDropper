@@ -297,7 +297,7 @@ banIPv6 () {
     logLine 1 "Creating nft set ${firewallChain}_v6"
     nft create set inet fw4 ${firewallChain}_v6 { type ipv6_addr \; flags interval \; auto-merge \; }
   fi
-
+  
   for x in $firewallHookChains ; do
     chain="${x%:*}" ; position="${x#*:}"
     if [ $position -ge 0 ] &&  ! nft -a list chain inet fw4 $chain 2>/dev/null | grep -qE "\\t+ip6 saddr @${firewallChain}_v6 $firewallTarget" ; then
