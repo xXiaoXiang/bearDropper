@@ -20,4 +20,5 @@ stop() {
 	kill `getKids $PID`
 	sleep 1
 	service_stop ${PROG}
+	rm -f /tmp/bearDropper.*
 }
