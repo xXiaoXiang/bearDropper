@@ -309,7 +309,7 @@ banIPv6 () {
   done
     
   logLine 1 "Inserting ban rule for IP $ip into nft chain ${firewallChain}_v6"
-  nft add element inet fw4 ${firewallChain}_6 {$ip}
+  nft add element inet fw4 ${firewallChain}_v6 {$ip}
 }
 
 banIP () {
