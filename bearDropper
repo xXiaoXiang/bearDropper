@@ -195,7 +195,7 @@ getLogTime () {
   local logDateString=$(echo "$1" | sed -n \
     's/^[A-Z][a-z]* \([A-Z][a-z]*  *[0-9][0-9]*  *[0-9][0-9]*:[0-9][0-9]:[0-9][0-9] [0-9][0-9]*\) .*$/\1/p')
   date -d"$logDateString" -D"$formatLogDate" +%s || logLine 1 \
-    "Error: logDateString($logDateString) malformed line ($1)"
+    "Error: getLogTime() logDateString($logDateString) malformed line ($1)"
 }
 
 getLogIPv4 () { 
@@ -239,18 +239,18 @@ getIPtype () {
 unBanIPv4 () {
   local ip="$1"
   if ! nft delete element inet fw4 ${firewallChain}_v4 {$ip} >/dev/null 2>/dev/null ; then
-    logLine 3 "unBanIP() Ban rule for $ip not present in nft"
+    logLine 3 "unBanIP() $ip not present in nft set ${firewallChain}_v4"
   else
-    logLine 1 "Removing ban rule for IP $ip from nft"
+    logLine 1 "Removing IP $ip from nft set"
   fi
 }
 
 unBanIPv6 () {
   local ip="$1"
   if ! nft delete element inet fw4 ${firewallChain}_v6 {$ip} >/dev/null 2>/dev/null ; then
-    logLine 3 "unBanIP() Ban rule for $ip not present in nft"
+    logLine 3 "unBanIP() $ip not present in nft"
   else
-    logLine 1 "Removing ban rule for IP $ip from nft"
+    logLine 1 "Removing IP $ip from nft set ${firewallChain}_v6"
   fi
 }
 
@@ -285,10 +285,10 @@ banIPv4 () {
     fi ; fi 
   done
   if [ -z "$(nft list set inet fw4 ${firewallChain}_v4 | grep ${ip})" ] ; then
-    logLine 1 "Inserting ban rule for IP $ip into nft chain ${firewallChain}_v4"
+    logLine 1 "Inserting IP $ip into nft set ${firewallChain}_v4"
     nft add element inet fw4 ${firewallChain}_v4 {$ip}
   else
-    logLine 2 "banIPv4() IP $ip already in nft set"
+    logLine 2 "banIPv4() IP $ip already in nft set ${firewallChain}_v4"
   fi
 }
 
@@ -312,10 +312,10 @@ banIPv6 () {
     fi ; fi 
   done
   if [ -z "$(nft list set inet fw4 ${firewallChain}_v6 | grep ${ip})" ] ; then
-    logLine 1 "Inserting ban rule for IP $ip into nft chain ${firewallChain}_v6"
+    logLine 1 "Inserting IP $ip into nft set ${firewallChain}_v6"
     nft add element inet fw4 ${firewallChain}_v6 {$ip}
   else
-    logLine 2 "banIPv6() IP $ip already in nft set"
+    logLine 2 "banIPv6() IP $ip already in nft set ${firewallChain}_v6"
   fi
 }
 
