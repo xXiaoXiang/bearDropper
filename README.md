@@ -1,6 +1,7 @@
 ## bearDropper 
 
 **A fork of dropbear log parsing ban agent for OpenWRT 22.03 (nftables rewrite of dropBrute.sh by @robzr)** - @marjancinober
+
 **Revised for using nft set functionality to store blacked IPs with support for IPv6 blacklist by Xiang Xiao**
 [![License: AGPLv3](https://www.gnu.org/graphics/agplv3-88x31.png)](https://www.gnu.org/licenses/agpl-3.0.html)
 [![License: CC BY-SA 4.0](https://licensebuttons.net/l/by-sa/4.0/80x15.png)](https://creativecommons.org/licenses/by-sa/4.0/)
