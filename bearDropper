@@ -106,9 +106,9 @@ bddbLoad () {
 bddbSave () { 
   local saveFile="$1.$2" fileType="$2"
   if [ "$fileType" = bddb ] ; then
-    set | grep -E '^bddb_[a-fA-F0-9_]*=' | sed s/\'//g > "$saveFile"
+    set | grep -E '^bddb_[a-f,A-F,0-9_]*=' | sed s/\'//g > "$saveFile"
   elif [ "$fileType" = bddbz ] ; then
-    set | grep -E '^bddb_[a-fA-F0-9_]*=' | sed s/\'//g | gzip -c > "$saveFile"
+    set | grep -E '^bddb_[a-f,A-F,0-9_]*=' | sed s/\'//g | gzip -c > "$saveFile"
   fi
   bddbStateChange=0 
 }
@@ -153,10 +153,13 @@ bddbRemoveRecord () {
 # Returns all IPs (not CIDR) present in records
 bddbGetAllIPs () { 
   local ipRaw record
-  set | grep -E '^bddb_[a-fA-F0-9_]*=' | tr \' \  | while read record ; do
+  set | grep -E '^bddb_[a-f,A-F,0-9_]*=' | tr \' \  | while read record ; do
     ipRaw=`echo $record | cut -f1 -d= | sed 's/^bddb_//'`
     if [ `echo $ipRaw | tr _ \  | wc -w` -eq 4 ] ; then
       echo $ipRaw | tr _ .
+    fi
+    if [ `echo $ipRaw | tr _ \  | wc -w` -eq 8 ] ; then
+      echo $ipRaw | tr _ :
     fi
   done
 }
@@ -164,7 +167,7 @@ bddbGetAllIPs () {
 # retrieve single IP record, Args: $1=IP
 bddbGetRecord () {
   local record
-  record=`echo $1 | sed -e 's/\./_/g' -e 's/^/bddb_/'`
+  record=`echo $1 | sed -e 's/\./_/g' -e 's/:/_/g' -e 's/^/bddb_/'`
   eval echo \$$record
 }
 
