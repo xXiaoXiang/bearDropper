@@ -283,7 +283,7 @@ banIPv4 () {
        	nft insert rule inet fw4 $chain index $((position-1)) ip saddr @${firewallChain}_v4 $firewallTarget
     fi ; fi 
   done
-  if [ ! $(nft list set inet fw4 ${firewallChain}_v4 | grep -q "${ip}") ] ; then
+  if [ ! $(nft list set inet fw4 ${firewallChain}_v4 | grep -Eq ${ip}) ] ; then
     logLine 3 "banIPv4() IP $ip already in nft set"
   else
     logLine 1 "Inserting ban rule for IP $ip into nft chain ${firewallChain}_v4"
@@ -310,7 +310,7 @@ banIPv6 () {
        	nft insert rule inet fw4 $chain index $((position-1)) ip6 saddr @${firewallChain}_v6 $firewallTarget
     fi ; fi 
   done
-  if [ ! $(nft list set inet fw4 ${firewallChain}_v6 | grep -q "${ip}") ] ; then
+  if [ ! $(nft list set inet fw4 ${firewallChain}_v6 | grep -Eq ${ip}) ] ; then
     logLine 3 "banIPv6() IP $ip already in nft set"
   else
     logLine 1 "Inserting ban rule for IP $ip into nft chain ${firewallChain}_v6"
