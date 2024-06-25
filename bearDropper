@@ -202,7 +202,7 @@ getLogIPv4 () {
   echo "$logLine" | sed -n 's/^.*[^0-9]\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*$/\1/p'
 }
 
-getlogIPv6 () {
+getLogIPv6 () {
   local logLine="$1"
   local ebaPID=$(echo "$logLine" | sed -n 's/^.*authpriv.info \(dropbear\[[0-9]*\]:\) Exit before auth.*/\1/p')
   [ -n "$ebaPID" ] && logLine=$($cmdLogreadEba | grep -F "${ebaPID} Child connection from ")
@@ -212,8 +212,8 @@ getlogIPv6 () {
 # extra validation, fails safe. Args: $1=log line
 getLogIP () {
   local logLine="$1"
-  local ip=$(getLogIPv4 "$logLine")
-  [ -z "$ip" ] && ip=$(getLogIPv6 "$logLine")
+  local ip=$(getLogIPv6 "$logLine")
+  [ -z "$ip" ] && ip=$(getLogIPv4 "$logLine")
   [ -z "$ip" ] && logLine 1 "Error: getLogIp() malformed line ($logLine)"
   echo "$ip"
 }
