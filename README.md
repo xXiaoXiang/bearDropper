@@ -1,6 +1,6 @@
 ## bearDropper 
 
-**A fork of dropbear log parsing ban agent for OpenWRT 22.03 (nftables rewrite of dropBrute.sh by @robzr)** - @marjancinober
+**A fork of dropbear log parsing ban agent for OpenWRT 22.03 \[(nftables rewrite of dropBrute.sh by @robzr)- @marjancinober\] updated by Xiang Xiao** 
 
 **Revised for using nft set functionality to store blacked IPs with support for IPv6 blacklist by Xiang Xiao**
 [![License: AGPLv3](https://www.gnu.org/graphics/agplv3-88x31.png)](https://www.gnu.org/licenses/agpl-3.0.html)
@@ -10,7 +10,7 @@ OpenWRT (22.03) script for blocking repeated invalid dropbear ssh connection att
 
 **Status**
 
-Working, no known issues. Beta nftables port, forked from https://github.com/robzr/bearDropper .
+Working, no known issues. Beta nftables set and IPv6 support, forked from https://github.com/marjancinober/bearDropper .
 
 **Dependencies** 
 
@@ -45,24 +45,4 @@ To install or upgrade to the latest bearDropper, run:
  - self installs into iptables for simple and reliable setup (easily disabled)
  - conservative input validation for security
 
-**TBD**
-
- - Port the sister project sub2rbl for RBL based banning: https://github.com/robzr/sub2rbl to nftables
- - Add optional freegeoip.net lookups for (de|ac)cellerated banning
- - implement whitelist
- - CIDR processing for bans & whitelists
- - self expiring ipset based ban list
- - package and submit to openwrt repo once it's reasonably bug free
- - ipv6 support
-
-**Contributions**
- - If you find it helpful, please consider contributing  
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](https://www.contributor-covenant.org/) &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;bitcoincash:qzj8xjuxl4u8p3vw720nya2m2e8jc8a6uge4n5q4dx  
-
-&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<img src="src/assets/bitcoincash.svg" height="60"> &emsp;<img src="src/assets/bitcoincash_qzj8xjuxl4u8p3vw720nya2m2e8jc8a6uge4n5q4dx.png" alt="bitcoincash:qzj8xjuxl4u8p3vw720nya2m2e8jc8a6uge4n5q4dx" />
-
-
-Also see the sister project sub2rbl for RBL based banning: https://github.com/robzr/sub2rbl
-
-Discussion of this project: https://forum.openwrt.org/t/fail2ban-replacement-and-rbl-firewall-syncing-in-lightweight-ash/159730
 
