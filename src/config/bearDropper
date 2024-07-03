@@ -55,6 +55,7 @@ config bearDropper
     # print (/p) - use to filter in 
     list	logRegex '/^[A-Za-z ]+[0-9: ]+authpriv.warn dropbear\[.+([0-9]+\.){3}[0-9]+/p'
     list	logRegex '/^[A-Za-z ]+[0-9: ]+authpriv.info dropbear\[.+:\ Exit before auth.*/p'
+    list  logRegex '/^[A-Za-z ]+[0-9: ]+authpriv.info dropbear\[.+:\ Early exit.*/p'
     list	logRegex '/^[A-Za-z ]+[0-9: ]+daemon.info ocserv\[.+:\ main: rejected connection from.*/p'
 
   # whitelist entries do not work yet; as a temporary workaround, put in a firewall rule upstream
